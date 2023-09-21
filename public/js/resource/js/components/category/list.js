@@ -125,6 +125,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: "categories",
   data: function data() {
@@ -138,11 +151,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       editMode: false,
       deleteModalShow: false,
-      categoryIdToDelete: null
+      categoryIdToDelete: null,
+      currentPage: 1,
+      perPage: 5
     };
   },
   mounted: function mounted() {
     this.getCategories();
+  },
+  computed: {
+    totalPages: function totalPages() {
+      return Math.ceil(this.categories.length / this.perPage);
+    }
   },
   methods: {
     openAddCategoryModal: function openAddCategoryModal() {
@@ -236,24 +256,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
+        var startIndex, endIndex, response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _context3.next = 2;
-                return _this3.axios.get('/api/category').then(function (response) {
-                  _this3.categories = response.data;
-                })["catch"](function (error) {
-                  console.log(error);
-                  _this3.categories = [];
-                });
+                startIndex = (_this3.currentPage - 1) * _this3.perPage;
+                endIndex = startIndex + _this3.perPage;
+                _context3.prev = 2;
+                _context3.next = 5;
+                return _this3.axios.get("/api/category");
 
-              case 2:
+              case 5:
+                response = _context3.sent;
+                _this3.categories = response.data.slice(startIndex, endIndex);
+                _context3.next = 13;
+                break;
+
+              case 9:
+                _context3.prev = 9;
+                _context3.t0 = _context3["catch"](2);
+                console.error(_context3.t0);
+                _this3.categories = [];
+
+              case 13:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3);
+        }, _callee3, null, [[2, 9]]);
       }))();
     },
     deleteCategory: function deleteCategory(id) {
@@ -1168,6 +1199,8 @@ var render = function() {
                             [_vm._v("Edit")]
                           ),
                           _vm._v(" "),
+                          _c("br"),
+                          _vm._v(" "),
                           _c(
                             "button",
                             {
@@ -1191,7 +1224,33 @@ var render = function() {
                 : _c("tbody", [_vm._m(2)])
             ])
           ])
-        ])
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "mt-3" },
+          [
+            _c("b-pagination", {
+              attrs: {
+                pills: "",
+                "total-rows": _vm.categories.length,
+                rows: _vm.categories.length,
+                "per-page": _vm.perPage,
+                size: "lg",
+                "aria-controls": "category-table"
+              },
+              on: { input: _vm.getCategories },
+              model: {
+                value: _vm.currentPage,
+                callback: function($$v) {
+                  _vm.currentPage = $$v
+                },
+                expression: "currentPage"
+              }
+            })
+          ],
+          1
+        )
       ])
     ]),
     _vm._v(" "),

@@ -26,6 +26,7 @@
                                         <td>{{ category.description }}</td>
                                         <td>
                                             <button type="button" @click="openEditCategoryModal(category)" class="btn btn-success">Edit</button>
+                                            <br>
                                             <button type="button" @click="openDeleteCategoryModal(category.id)" class="btn btn-danger">Delete</button>
                                         </td>
                                     </tr>
@@ -37,6 +38,18 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                    <div class="mt-3">
+                        <b-pagination
+                            v-model="currentPage"
+                            pills
+                            :total-rows="categories.length"
+                            :rows="categories.length"
+                            :per-page="perPage"
+                            size="lg"
+                            aria-controls="category-table"
+                            @input="getCategories"
+                        ></b-pagination>
                     </div>
                 </div>
             </div>
@@ -98,20 +111,27 @@ export default {
   name: "categories",
   data() {
     return {
-      categories: [],
-      modalShow: false,
-      category: {
+        categories: [],
+        modalShow: false,
+        category: {
         id: null,
         title: "",
         description: ""
-      },
-      editMode: false,
-      deleteModalShow: false,
-      categoryIdToDelete: null,
+        },
+        editMode: false,
+        deleteModalShow: false,
+        categoryIdToDelete: null,
+        currentPage: 1,
+        perPage: 5,
     };
   },
   mounted() {
     this.getCategories();
+  },
+  computed: {
+    totalPages() {
+        return Math.ceil(this.categories.length / this.perPage);
+    },
   },
   methods: {
     openAddCategoryModal() {
@@ -177,13 +197,16 @@ export default {
             });
     },
 
-    async getCategories(){
-        await this.axios.get('/api/category').then(response=>{
-            this.categories = response.data
-        }).catch(error=>{
-            console.log(error)
-            this.categories = []
-        })
+    async getCategories() {
+      const startIndex = (this.currentPage - 1) * this.perPage;
+      const endIndex = startIndex + this.perPage;
+      try {
+        const response = await this.axios.get("/api/category");
+        this.categories = response.data.slice(startIndex, endIndex);
+      } catch (error) {
+        console.error(error);
+        this.categories = [];
+      }
     },
 
     deleteCategory(id){
